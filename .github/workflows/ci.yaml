@@ -44,6 +44,10 @@ jobs:
           dir: docs
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v2
+        env:
+          GOGC: 100
+        with:
+          args: --timeout 10m0s
       - run: | 
           make .bin/go-acc
           .bin/go-acc -o coverage.out ./... -- -failfast -timeout=20m -tags sqlite
