@@ -1,6 +1,8 @@
 name: CI Tasks for Ory Hydra
 on:
   push:
+    branches:
+      - master
 
 jobs:
   test:
