@@ -58,28 +58,71 @@ jobs:
   #        env:
   #          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  test-hsm:
-    name: Run HSM tests
+  #   test-hsm:
+  #     name: Run HSM tests
+  #     runs-on: ubuntu-latest
+  #     env:
+  #       HSM_ENABLED: true
+  #       HSM_LIBRARY: /usr/lib/softhsm/libsofthsm2.so
+  #       HSM_TOKEN_LABEL: hydra
+  #       HSM_PIN: 1234
+  #     steps:
+  #       - uses: actions/checkout@v2
+  #       - uses: actions/setup-go@v2
+  #         with:
+  #           go-version: ^1.17
+  #       - run: |
+  #           sudo apt install -y softhsm opensc
+  #           sudo rm -rf /var/lib/softhsm/tokens
+  #           sudo mkdir -p /var/lib/softhsm/tokens
+  #           sudo chmod -R a+rwx /var/lib/softhsm
+  #           sudo chmod a+rx /etc/softhsm
+  #           sudo chmod a+r /etc/softhsm/*
+  #           pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so --slot 0 --init-token --so-pin 0000 --init-pin --pin 1234 --label hydra
+  #           go test -p 1 -v -failfast -short -timeout=20m -tags=sqlite,hsm ./...
+
+  test-e2e:
+    name: Run end-to-end tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:9.6
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: test
+          POSTGRES_USER: test
+        ports:
+          - 5432:5432
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test
+        ports:
+          - 3306:3306
     env:
-      HSM_ENABLED: true
-      HSM_LIBRARY: /usr/lib/softhsm/libsofthsm2.so
-      HSM_TOKEN_LABEL: hydra
-      HSM_PIN: 1234
+      TEST_DATABASE_POSTGRESQL: postgres://test:test@localhost:5432/postgres?sslmode=disable
+      TEST_DATABASE_MYSQL: mysql://root:test@(localhost:3306)/mysql?multiStatements=true&parseTime=true
+      TEST_DATABASE_COCKROACHDB: cockroach://root@localhost:26257/defaultdb?sslmode=disable
     steps:
+      - run: |
+        # Can't pass a command to service container.
+          docker create --name cockroach -p 26257:26257 \
+            cockroachdb/cockroach:v20.2.5 start-single-node --insecure
+          docker start cockroach
+        name: Start CockroachDB
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: ^1.17
-      - run: |
-          sudo apt install -y softhsm opensc
-          sudo rm -rf /var/lib/softhsm/tokens
-          sudo mkdir -p /var/lib/softhsm/tokens
-          sudo chmod -R a+rwx /var/lib/softhsm
-          sudo chmod a+rx /etc/softhsm
-          sudo chmod a+r /etc/softhsm/*
-          pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so --slot 0 --init-token --so-pin 0000 --init-pin --pin 1234 --label hydra
-          go test -p 1 -v -failfast -short -timeout=20m -tags=sqlite,hsm ./...
+          go-version: ^1.16
+
+      - run: ./test/e2e/circle-ci.bash memory
+      - run: ./test/e2e/circle-ci.bash memory --jwt
+      - run: ./test/e2e/circle-ci.bash cockroach
+      - run: ./test/e2e/circle-ci.bash cockroach --jwt
+      - run: ./test/e2e/circle-ci.bash mysql
+      - run: ./test/e2e/circle-ci.bash mysql --jwt
+      - run: ./test/e2e/circle-ci.bash postgres
+      - run: ./test/e2e/circle-ci.bash postgres --jwt
 
 
             #   docs:
