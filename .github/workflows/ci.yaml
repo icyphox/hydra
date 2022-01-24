@@ -108,6 +108,7 @@ jobs:
   #     - run: ./test/e2e/circle-ci.bash postgres --jwt
 
   docs-build:
+    runs-on: ubuntu-latest
     name: Build and publish docs
     needs:
       - test
