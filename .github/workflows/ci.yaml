@@ -67,6 +67,7 @@ jobs:
       HSM_TOKEN_LABEL: hydra
       HSM_PIN: 1234
     steps:
+      - uses: actions/checkout@v2
       - run: |
           sudo apt install -y softhsm opensc
           sudo rm -rf /var/lib/softhsm/tokens
