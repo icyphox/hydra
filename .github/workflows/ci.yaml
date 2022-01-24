@@ -110,8 +110,8 @@ jobs:
   docs-build:
     runs-on: ubuntu-latest
     name: Build and publish docs
-    needs:
-      - test
+      # needs:
+      #   - test
     steps:
       - uses: icyphox/gha/docs@master
         with:
