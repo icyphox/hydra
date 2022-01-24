@@ -48,6 +48,7 @@ jobs:
           GOGC: 100
         with:
           args: --timeout 10m0s
+          skip-go-installation: true
       - run: | 
           make .bin/go-acc
           .bin/go-acc -o coverage.out ./... -- -failfast -timeout=20m -tags sqlite
