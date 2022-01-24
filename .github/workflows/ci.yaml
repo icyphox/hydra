@@ -65,7 +65,7 @@ jobs:
       HSM_ENABLED: true
       HSM_LIBRARY: /usr/lib/softhsm/libsofthsm2.so
       HSM_TOKEN_LABEL: hydra
-      HSM_PIN=1234
+      HSM_PIN: 1234
     steps:
       - run: |
           sudo apt install -y softhsm opensc
