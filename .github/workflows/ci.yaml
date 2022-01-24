@@ -49,6 +49,7 @@ jobs:
         with:
           args: --timeout 10m0s
           skip-go-installation: true
+          skip-pkg-cache: true
       - run: | 
           make .bin/go-acc
           .bin/go-acc -o coverage.out ./... -- -failfast -timeout=20m -tags sqlite
