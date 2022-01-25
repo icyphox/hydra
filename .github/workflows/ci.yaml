@@ -130,6 +130,9 @@ jobs:
     name: Generate changelog
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - uses: ory/ci/changelog@master
 
       # needs:
