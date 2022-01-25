@@ -113,7 +113,7 @@ jobs:
       # needs:
       #   - test
     steps:
-      - uses: icyphox/gha/docs@master
+      - uses: ory/ci/docs@master
         with:
           job: 'cli'
           swag-spec-location: spec/api.json
