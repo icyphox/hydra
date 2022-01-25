@@ -115,7 +115,7 @@ jobs:
     steps:
       - uses: icyphox/gha/docs@master
         with:
-          job: 'build'
+          job: 'cli'
           swag-spec-location: spec/api.json
 
   # changelog:
