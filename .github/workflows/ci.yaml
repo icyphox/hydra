@@ -110,17 +110,20 @@ jobs:
   # docs-build:
   #   runs-on: ubuntu-latest
   #   name: Build and publish docs
-  #     # needs:
-  #     #   - test
+  #   if: ${{ github.ref_type == 'tag' || github.ref_name == 'master' }}
+  #   needs:
+  #     - test
   #   steps:
   #     - uses: ory/ci/docs@master
   #       with:
   #         job: 'build'
   #         swag-spec-location: spec/api.json
-  #
+
   # docs-cli:
   #   runs-on: ubuntu-latest
   #   name: Build CLI docs
+  #   needs:
+  #     - test
   #   steps:
   #     - uses: ory/ci/docs@master
   #       with:
@@ -129,20 +132,26 @@ jobs:
   # changelog:
   #   name: Generate changelog
   #   runs-on: ubuntu-latest
+  #   if: ${{ github.ref_type == 'tag' || github.ref_name == 'master' }}
+  #   needs:
+  #     - test
+  #     - test-hsm
+  #     - test-e2e
+  #     - docs-build
   #   steps:
   #     - uses: actions/checkout@v2
   #       with:
   #         fetch-depth: 0
   #     - uses: ory/ci/changelog@master
-      # needs:
-      #   - test
-      #   - test-hsm
-      #   - test-e2e
-      #   - docs
 
   # sdk-generate:
   #   name: Generate SDKs
   #   runs-on: ubuntu-latest
+  #   if: ${{ github.ref_type == 'tag' || github.ref_name != 'master' }}
+  #   needs:
+  #     - test
+  #     - test-hsm
+  #     - test-e2e
   #   steps:
   #     - uses: ory/ci/sdk@master
   #       with:
@@ -151,17 +160,23 @@ jobs:
   #         swag-spec-ignore: internal/httpclient gopkg.in/square/go-jose.v2
   #         swag-spec-location: spec/api.json
 
-  sdk-release:
-    name: Release SDKs
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ory/ci/sdk@master
-        with:
-          job: 'release'
-          app-name: Ory_Hydra
-          swag-spec-ignore: internal/httpclient gopkg.in/square/go-jose.v2
-          swag-spec-location: spec/api.json
-
+  # sdk-release:
+  #   name: Release SDKs
+  #   runs-on: ubuntu-latest
+  #   if: ${{ github.ref_type == 'tag' }}
+  #   needs:
+  #     - test
+  #     - test-hsm
+  #     - sdk-generate
+  #     - docs-build
+  #     - release
+  #   steps:
+  #     - uses: ory/ci/sdk@master
+  #       with:
+  #         job: 'release'
+  #         app-name: Ory_Hydra
+  #         swag-spec-ignore: internal/httpclient gopkg.in/square/go-jose.v2
+  #         swag-spec-location: spec/api.json
 
   # release:
   #   name: Generate release
@@ -169,6 +184,10 @@ jobs:
   #   if: ${{ github.ref_type == 'tag' }}
   #   needs:
   #     - test
+  #     - test-hsm
+  #     - test-e2e
+  #     - changelog
+  #     - docs-build
   #   steps:
   #     - uses: ory/ci/releaser@master
   #       with:
@@ -177,6 +196,17 @@ jobs:
   #         cosign_pwd: ${{ secrets.COSIGN_PWD }}
   #         docker_username: ${{ secrets.DOCKERHUB_USERNAME }}
   #         docker_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+  render-version-schema:
+    name: Render version schema
+    runs-on: ubuntu-latest
+    # if: ${{ github.ref_type == 'tag' }}
+    # needs:
+    #   - release
+    steps:
+      - uses: icyphox/gha/releaser@master
+        with:
+          schema-path: spec/config.json
 
   # newsletter-draft:
   #   name: Draft newsletter
