@@ -107,23 +107,34 @@ jobs:
   #     - run: ./test/e2e/circle-ci.bash postgres
   #     - run: ./test/e2e/circle-ci.bash postgres --jwt
 
-  docs-build:
+  # docs-build:
+  #   runs-on: ubuntu-latest
+  #   name: Build and publish docs
+  #     # needs:
+  #     #   - test
+  #   steps:
+  #     - uses: ory/ci/docs@master
+  #       with:
+  #         job: 'build'
+  #         swag-spec-location: spec/api.json
+  #
+  # docs-cli:
+  #   runs-on: ubuntu-latest
+  #   name: Build CLI docs
+  #   steps:
+  #     - uses: ory/ci/docs@master
+  #       with:
+  #         job: 'cli'
+
+  changelog:
+    name: Generate changelog
     runs-on: ubuntu-latest
-    name: Build and publish docs
+    steps:
+      - uses: ory/ci/changelog@master
+
       # needs:
       #   - test
-    steps:
-      - uses: actions/checkout@v2
-      - uses: ory/ci/docs@master
-        with:
-          job: 'cli'
-          swag-spec-location: spec/api.json
-
-  # changelog:
-  #   name: Generate changelog
-  #   needs:
-  #     - test
-  #     - test-hsm
-  #     - test-e2e
-  #     - docs
+      #   - test-hsm
+      #   - test-e2e
+      #   - docs
 
