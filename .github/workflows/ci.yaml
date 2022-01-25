@@ -140,15 +140,28 @@ jobs:
       #   - test-e2e
       #   - docs
 
-  sdk-generate:
-    name: Generate SDKs
+  # sdk-generate:
+  #   name: Generate SDKs
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: ory/ci/sdk@master
+  #       with:
+  #         job: 'generate'
+  #         app-name: Ory_Hydra
+  #         swag-spec-ignore: internal/httpclient gopkg.in/square/go-jose.v2
+  #         swag-spec-location: spec/api.json
+
+  sdk-release:
+    name: Release SDKs
     runs-on: ubuntu-latest
     steps:
       - uses: ory/ci/sdk@master
         with:
+          job: 'release'
           app-name: Ory_Hydra
           swag-spec-ignore: internal/httpclient gopkg.in/square/go-jose.v2
           swag-spec-location: spec/api.json
+
 
   # release:
   #   name: Generate release
